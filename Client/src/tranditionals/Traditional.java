@@ -79,6 +79,18 @@ public class Traditional implements Runnable{
         broadcast(bytes);
     }
 
+    public void replay(String name){
+        byte[] bytes = new byte[LENGTH];
+        copyToBytes(intToByteArray(6), 0, bytes);
+        copyToBytes(intToByteArray(ClientInfo.getInstance().getId()), 4, bytes);
+        copyToBytes(intToByteArray(ClientInfo.getInstance().getStartX()), 8, bytes);
+        copyToBytes(intToByteArray(ClientInfo.getInstance().getStartY()), 12, bytes);
+        copyToBytes(intToByteArray(4), 16, bytes);
+        copyToBytes(intToByteArray(name.getBytes().length), 20, bytes);
+        copyToBytes(name.getBytes(), 24, bytes);
+        broadcast(bytes);
+    }
+
     public void shot(){
         byte[] bytes = new byte[LENGTH];
         copyToBytes(intToByteArray(3), 0, bytes);

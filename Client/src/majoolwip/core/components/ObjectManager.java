@@ -25,6 +25,10 @@ public class ObjectManager
 		}
 	}
 
+	public void removeAllObject(){
+		objects.clear();
+	}
+
 	public void removeObject(String tag){
 		for(Iterator<GameObject> t = objects.iterator(); t.hasNext();)
 		{

@@ -5,7 +5,6 @@ import majoolwip.core.Renderer;
 import majoolwip.core.components.*;
 import majoolwip.core.fx.Image;
 import managers.ClientInfo;
-import managers.GameManager;
 import tranditionals.Traditional;
 
 import java.awt.*;
@@ -16,7 +15,7 @@ import java.util.ArrayList;
  * Created by Tdh4vn on 11/6/2016.
  */
 public class Tank extends GameObject {
-    private static final float COUNTDOWN_SHOT = 2.0f;
+    private static final float COUNTDOWN_SHOT = 1.0f;
 
     private float countTimeShot = 0.0f;
 
@@ -36,13 +35,14 @@ public class Tank extends GameObject {
     protected int speed = 200;
 
     protected Image sprite;
-    protected Image barrle;
     protected String name;
     protected int dir = 2;
     protected Image[] tanksDir;
-    protected Image[] barrleDir;
 
 
+    public Tank(){
+
+    }
 
     public Tank(int x, int y, String name) {
         setTag("mytank");
@@ -50,20 +50,15 @@ public class Tank extends GameObject {
         this.x = x;
         this.y = y;
         tanksDir = new Image[]{
-                new Image("Tanks/tankGreenUp.png"),
-                new Image("Tanks/tankGreenLeft.png"),
-                new Image("Tanks/tankGreenDown.png"),
-                new Image("Tanks/tankGreenRight.png")
+                new Image("1945/tank_armor_up_c2_t1.png"),
+                new Image("1945/tank_armor_left_c2_t1.png"),
+                new Image("1945/tank_armor_down_c2_t1.png"),
+                new Image("1945/tank_armor_right_c2_t1.png")
+        };
 
-        };
-        barrleDir = new Image[]{
-                new Image("Tanks/barrelGreenV.png"),
-                new Image("Tanks/barrelGreenH.png")
-        };
         sprite = tanksDir[dir];
         sprite.setAnchorPoint(0.5f, 0.5f);
-        barrle = barrleDir[dir % 2];
-        barrle.setAnchorPoint(0.5f, 0.0f);
+
         this.h = sprite.height;
         this.w = sprite.width;
         this.name = name;
@@ -76,11 +71,9 @@ public class Tank extends GameObject {
             dir = UP;
             sprite = tanksDir[dir];
             sprite.setAnchorPoint(0.5f, 0.5f);
-            barrle = barrleDir[dir % 2];
-            barrle.setAnchorPoint(0.5f, 1.0f);
             y -= speed * dt;
-            if(y < 0) {
-                y = 0;
+            if(y < 16) {
+                y = 16;
             }
             traditional.moveToPosition((int)x, (int)y, dir);
         }
@@ -89,12 +82,9 @@ public class Tank extends GameObject {
             dir = DOWN;
             sprite = tanksDir[dir];
             sprite.setAnchorPoint(0.5f, 0.5f);
-
-            barrle = barrleDir[dir % 2];
-            barrle.setAnchorPoint(0.5f, 0.0f);
             y += speed * dt;
-            if(y + h > gc.getHeight()) {
-                y = gc.getHeight() - h;
+            if(y + h > gc.getHeight() - 16) {
+                y = gc.getHeight() - h - 16;
             }
             traditional.moveToPosition((int)x, (int)y, dir);
         }
@@ -103,12 +93,9 @@ public class Tank extends GameObject {
             dir = LEFT;
             sprite = tanksDir[dir];
             sprite.setAnchorPoint(0.5f, 0.5f);
-
-            barrle = barrleDir[dir % 2];
-            barrle.setAnchorPoint(1.0f, 0.5f);
             x -= speed * dt;
-            if(x < 0) {
-               x = 0;
+            if(x < 16) {
+               x = 16;
             }
             traditional.moveToPosition((int)x, (int)y, dir);
         }
@@ -117,12 +104,9 @@ public class Tank extends GameObject {
             dir = RIGHT;
             sprite = tanksDir[dir];
             sprite.setAnchorPoint(0.5f, 0.5f);
-
-            barrle = barrleDir[dir % 2];
-            barrle.setAnchorPoint(0.0f, 0.5f);
             x += speed * dt;
-            if(x + w > gc.getWidth()) {
-                x = gc.getWidth() - w;
+            if(x + w > gc.getWidth() -16) {
+                x = gc.getWidth() - w - 16;
             }
             traditional.moveToPosition((int)x, (int)y, dir);
         }
@@ -150,11 +134,9 @@ public class Tank extends GameObject {
 
     @Override
     public void render(GameContainer gc, Renderer r) {
-        r.drawImage(sprite, (int)x, (int)y);
-        r.drawImage(barrle, (int)x, (int)y);
+        r.drawBufferredImage(sprite.getBufferedImage(), (int)x - (int)(sprite.getAnchorX() * sprite.width), (int)y- (int)(sprite.getAnchorY() * sprite.height));
         r.drawString(name, Color.WHITE.hashCode(), (int)x, (int)y + (int)getH() / 2);
         renderBullet(gc, r);
-        //renderComponents(gc, r);
     }
 
     public void renderBullet(GameContainer gc, Renderer r) {
@@ -165,15 +147,16 @@ public class Tank extends GameObject {
 
     @Override
     public void componentEvent(String name, GameObject object) {
-//        if (object instanceof Bullet){
-//            String tag = ((Bullet)object).getTag();
-//            int idTank = Integer.parseInt(tag);
-//            System.out.println(idTank);
-//            if (idTank != ClientInfo.getInstance().getId()){
-//                traditional.die();
-//            }
-//            //
-//        }
+        if (object instanceof Bullet){
+            String tag = ((Bullet)object).getTag();
+            int idTankShotBullet = Integer.parseInt(tag.substring(6, 10));
+            System.out.println(idTankShotBullet);
+            System.out.println(tag);
+            if (idTankShotBullet != ClientInfo.getInstance().getId()){
+                traditional.die();
+            }
+
+        }
     }
 
     @Override

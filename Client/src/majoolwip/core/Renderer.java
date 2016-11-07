@@ -1,5 +1,6 @@
 package majoolwip.core;
 
+import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.util.ArrayList;
 
@@ -21,7 +22,7 @@ public class Renderer
 	private ShadowType[] shadowMap;
 	private Font font = Font.STANDARD;
 	private int ambientLight = Pixel.getColor(1, 0.1f, 0.1f, 0.1f);
-	private int clearColor = 0xff000000;
+	private int clearColor = 0x00000000;
 
 	private int transX, transY;
 	
@@ -62,6 +63,10 @@ public class Renderer
 		if (x < 0 || x >= width || y < 0 || y >= height)
 			return ShadowType.TOTAL;
 		return shadowMap[x + y * width];
+	}
+
+	public void drawBufferredImage(BufferedImage bufferedImage, int x, int y){
+		gc.getWindow().drawImage(bufferedImage, x, y);
 	}
 
 	public void setLightMap(int x, int y, int color)
@@ -151,6 +156,8 @@ public class Renderer
 			}
 		}
 	}
+
+
 	
 	public void drawRect(int offX, int offY, int w, int h, int color, ShadowType type)
 	{

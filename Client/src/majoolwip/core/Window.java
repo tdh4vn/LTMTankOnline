@@ -82,6 +82,10 @@ public class Window
 		return image;
 	}
 
+	public void drawImage(BufferedImage bufferedImage, int x, int y){
+		getImage().getGraphics().drawImage(bufferedImage, x, y, null);
+	}
+
 	public void setCloseWindowListener(CloseWindowListener closeWindowListener) {
 		this.closeWindowListener = closeWindowListener;
 	}

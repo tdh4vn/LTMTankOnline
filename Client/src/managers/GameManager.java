@@ -8,11 +8,13 @@ import majoolwip.core.AbstractGame;
 import majoolwip.core.GameContainer;
 import majoolwip.core.Renderer;
 import majoolwip.core.Window;
+import majoolwip.core.components.GameObject;
 import tranditionals.Traditional;
 import views.PlayScreen;
 
 import javax.swing.*;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Tdh4vn on 11/6/2016.
@@ -40,16 +42,16 @@ public class GameManager extends AbstractGame implements HandleGameObject {
 
 
     public GameManager() {
+        push(new PlayScreen());
         Traditional.create(new HandleEvent(this));
         traditional = Traditional.getInstance();
-        push(new PlayScreen());
-        inputNameAndLogin();
+        String name = inputNameAndLogin();
+        traditional.login(name);
     }
 
-    public void inputNameAndLogin(){
-        String name = JOptionPane.showInputDialog("Nhập tên");
-        traditional.login(name);
+    private String inputNameAndLogin(){
         restartGame();
+        return JOptionPane.showInputDialog("Nhập tên");
     }
 
     @Override
@@ -88,21 +90,17 @@ public class GameManager extends AbstractGame implements HandleGameObject {
             peek().getManager().addObject(myTank);
         } else {
             TankEnemy tankEnemy = new TankEnemy(x, y, dir, id, name);
-            tanks.put(String.valueOf(id), tankEnemy);
             peek().getManager().addObject(tankEnemy);
         }
     }
 
     @Override
     public void move(int id, int x, int y, int dir) {
-        System.out.println("ID" +  id);
-        if (tanks.get(String.valueOf(id)) == null){
-            System.out.println("null");
-            TankEnemy tankEnemy = new TankEnemy(x, y, dir, id, "Unknown");
-            tanks.put(String.valueOf(id), tankEnemy);
-        } else {
-            //System.out.println(tanks.get(id).getX());
-            tanks.get(String.valueOf(id)).move(x, y, dir);
+        if (!isMyClient(id)){
+            GameObject gameObject = peek().getManager().findObject(String.valueOf(id));
+            if (gameObject instanceof TankEnemy){
+                ((TankEnemy) gameObject).move(x, y, dir);
+            }
         }
     }
 
@@ -111,26 +109,31 @@ public class GameManager extends AbstractGame implements HandleGameObject {
         if (isMyClient(id)){
             myTank.shot();
         } else {
-            tanks.get(String.valueOf(id)).shot();
+            GameObject gameObject = peek().getManager().findObject(String.valueOf(id));
+            if (gameObject instanceof TankEnemy){
+                ((TankEnemy) gameObject).shot();
+            }
         }
     }
 
     @Override
     public void onExit(int id) {
-        peek().getManager().removeObject(tanks.get(String.valueOf(id)).getTag());
-        tanks.remove(String.valueOf(id));
+        peek().getManager().removeObject(String.valueOf(id));
     }
 
     @Override
     public void die(int id) {
-        if (peek().getManager() != null && tanks.get(String.valueOf(id)) != null){
-            peek().getManager().removeObject(tanks.get(String.valueOf(id)).getTag());
-            tanks.remove(String.valueOf(id));
+        if (isMyClient(id)) {
+            peek().getManager().removeObject(myTank.getTag());
+            String name = inputNameAndLogin();
+            traditional.replay(name);
+        } else {
+            peek().getManager().removeObject(String.valueOf(id));
         }
     }
 
     public void restartGame(){
-        tanks.clear();
+        peek().getManager().removeAllObject();
     }
 
     public HashMap<String, TankEnemy> getTanks() {

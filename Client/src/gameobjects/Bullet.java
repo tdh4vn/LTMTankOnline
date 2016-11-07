@@ -18,34 +18,29 @@ public class Bullet extends GameObject {
     private int speed = 500;
 
     public Bullet(int x, int y, int dir, String tag) {
-        this.tag = tag;
+        this.tag = "bullet" + tag;
         this.dir = dir;
         this.x = x;
         this.y = y;
         switch (dir){
             case GameConfigs.UP:
-                sprite = new Image("Bullets/bulletGreenUp.png");
-                sprite.setAnchorPoint(0.5f, 0.0f);
+                sprite = new Image("1945/bullet_up.png");
                 break;
             case GameConfigs.DOWN:
-                sprite = new Image("Bullets/bulletGreenDown.png");
-                sprite.setAnchorPoint(1.0f, 0.0f);
+                sprite = new Image("1945/bullet_down.png");
                 break;
             case GameConfigs.RIGHT:
-                sprite = new Image("Bullets/bulletGreenRight.png");
-                sprite.setAnchorPoint(0.0f, 0.5f);
+                sprite = new Image("1945/bullet_right.png");
                 break;
             case GameConfigs.LEFT:
-                sprite = new Image("Bullets/bulletGreenLeft.png");
-                sprite.setAnchorPoint(1.0f, 0.5f);
+                sprite = new Image("1945/bullet_left.png");
                 break;
             default:
                 break;
         }
-
+        sprite.setAnchorPoint(0.5f, 0.5f);
         this.w = sprite.getWidth();
         this.h = sprite.getHeight();
-
         addComponent(new Collider());
     }
 
@@ -72,7 +67,7 @@ public class Bullet extends GameObject {
 
     @Override
     public void render(GameContainer gc, Renderer r) {
-        r.drawImage(sprite, (int)this.x, (int)this.y);
+        r.drawBufferredImage(sprite.getBufferedImage(), (int)x - (int)(sprite.getAnchorX() * sprite.width), (int)y- (int)(sprite.getAnchorY() * sprite.height));
         renderComponents(gc, r);
     }
 

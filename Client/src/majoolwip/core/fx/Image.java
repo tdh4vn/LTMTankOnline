@@ -11,25 +11,25 @@ public class Image {
 	public float anchorX, anchorY;
 	public ShadowType shadowType = ShadowType.NONE;
 	public int[] pixels;
+
+	BufferedImage bufferedImage;
 	
 	public Image(String path)
 	{
-		BufferedImage image = null;
-		
+		bufferedImage = null;
 		try
 		{
-			image = ImageIO.read(new File("Client/res/" + path));
+			bufferedImage = ImageIO.read(new File("Client/res/" + path));
 		} catch (IOException e)
 		{
 			e.printStackTrace();
 		}
 		
-		width = image.getWidth();
-		height = image.getHeight();
-		pixels = image.getRGB(0, 0, width, height, null, 0, width);
+		width = bufferedImage.getWidth();
+		height = bufferedImage.getHeight();
+		pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
 		anchorX = 0.5f;
 		anchorY = 0.5f;
-		image.flush();
 	}
 	
 	public Image(int w, int h, int[] p)
@@ -76,4 +76,10 @@ public class Image {
 		anchorX = x;
 		anchorY = y;
 	}
+
+	public BufferedImage getBufferedImage(){
+		return bufferedImage;
+	}
+
+
 }

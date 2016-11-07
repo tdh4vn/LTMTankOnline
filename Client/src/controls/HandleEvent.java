@@ -20,21 +20,26 @@ public class HandleEvent {
         int type = byteBuffer.getInt();
         int id = byteBuffer.getInt(4);
         switch (type){
-            case 0:
-                ClientInfo.getInstance().setId(id);
-                ClientInfo.getInstance().setStartX(byteBuffer.getInt(8));
-                ClientInfo.getInstance().setStartY(byteBuffer.getInt(12));
-                break;
-            case 1:
-                int length = byteBuffer.getInt(20);
-                System.out.println("New client : " + id);
-                handleGameObject.newClient(id, new String(bytes, 24, length), byteBuffer.getInt(8), byteBuffer.getInt(12), 2);
-                break;
-            case 11:
-                int lengthOfNameOtherClient = byteBuffer.getInt(20);
-                System.out.println("Create client : " + id);
-                handleGameObject.newClient(id, new String(bytes, 24, lengthOfNameOtherClient), byteBuffer.getInt(8), byteBuffer.getInt(12), 2);
-                break;
+            case 0:{
+                    ClientInfo.getInstance().setId(id);
+                    ClientInfo.getInstance().setStartX(byteBuffer.getInt(8));
+                    ClientInfo.getInstance().setStartY(byteBuffer.getInt(12));
+                    break;
+                }
+            case 1:{
+                    int length = byteBuffer.getInt(20);
+                    System.out.println("New client : " + id);
+                    handleGameObject.newClient(id, new String(bytes, 24, length), byteBuffer.getInt(8), byteBuffer.getInt(12), 2);
+                    break;
+                }
+
+            case 11:{
+                    int lengthOfNameOtherClient = byteBuffer.getInt(20);
+                    System.out.println("Create client : " + id);
+                    handleGameObject.newClient(id, new String(bytes, 24, lengthOfNameOtherClient), byteBuffer.getInt(8), byteBuffer.getInt(12),  byteBuffer.getInt(16));
+                    break;
+                }
+
             case 2:
                 //System.out.println("Player " + id + " move to : " + byteBuffer.getInt(8) + "-"+ byteBuffer.getInt(12) + "-" + byteBuffer.getInt(16));
                 handleGameObject.move(id, byteBuffer.getInt(8), byteBuffer.getInt(12), byteBuffer.getInt(16));
@@ -48,22 +53,13 @@ public class HandleEvent {
             case 5:
                 handleGameObject.onExit(id);
                 break;
+            case 6:{
+                    int length = byteBuffer.getInt(20);
+                    System.out.println("New client : " + id);
+                    handleGameObject.newClient(id, new String(bytes, 24, length), byteBuffer.getInt(8), byteBuffer.getInt(12), 2);
+                }
             default:
                 break;
         }
-    }
-
-    private void copyToBytes(byte[] bytes, int off, byte[] target){
-        for (int i = 0; i < bytes.length; i++){
-            target[off + i] = bytes[i];
-        }
-    }
-
-    private byte[] intToByteArray(int value) {
-        return new byte[] {
-                (byte)(value >>> 24),
-                (byte)(value >>> 16),
-                (byte)(value >>> 8),
-                (byte)value};
     }
 }

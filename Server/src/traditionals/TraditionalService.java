@@ -1,7 +1,5 @@
 package traditionals;
 
-import events.AbstractEvent;
-import events.EventFactory;
 import models.Tank;
 
 import java.io.IOException;
@@ -15,15 +13,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-import java.util.function.BiConsumer;
 
 /**
  * Created by Tdh4vn on 11/6/2016.
  */
-public class TraditionalService implements SendInterface, Runnable{
-    public static final int LENGTH = 256;
-    private final int PORT = 5555;
-    Random rd = new Random();
+public class TraditionalService implements Runnable{
+    private static final int LENGTH = 256;
+    private final int PORT = 5556;
+    private Random rd = new Random();
     private ServerSocketChannel ssc;
     private Selector selector;
     private ByteBuffer buf = ByteBuffer.allocate(LENGTH);
@@ -40,8 +37,7 @@ public class TraditionalService implements SendInterface, Runnable{
         this.ssc.register(selector, SelectionKey.OP_ACCEPT);
     }
 
-    @Override
-    public void broadcast(byte[] event) throws IOException {
+    private void broadcast(byte[] event) throws IOException {
 
         ByteBuffer msgBuf=ByteBuffer.wrap(event);
         for(SelectionKey key : selector.keys()) {
@@ -84,6 +80,7 @@ public class TraditionalService implements SendInterface, Runnable{
         int count = 0;
         for(Map.Entry<String, Tank> entry : tanks.entrySet()) {
             byte[] bytes1 = new byte[LENGTH];
+            System.out.println(entry.getValue().getName() + entry.getValue().getX() +"  "+ entry.getValue().getY());
             copyToBytes(intToByteArray(11), 0, bytes1);
             copyToBytes(intToByteArray(entry.getValue().getId()), 4, bytes1);
             copyToBytes(intToByteArray(entry.getValue().getX()), 8, bytes1);
@@ -112,7 +109,7 @@ public class TraditionalService implements SendInterface, Runnable{
                 if(read<0) {
                     ch.close();
                 } else {
-                    handleMessage(bytes);
+                    handleMessage(ch, bytes);
                     broadcast(bytes);
                 }
             }
@@ -123,7 +120,7 @@ public class TraditionalService implements SendInterface, Runnable{
 
     }
 
-    private void handleMessage(byte[] bytes) {
+    private void handleMessage(SocketChannel ch, byte[] bytes) throws IOException {
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         int type = byteBuffer.getInt();
         int id = byteBuffer.getInt(4);
@@ -135,8 +132,11 @@ public class TraditionalService implements SendInterface, Runnable{
             tanks.get(String.valueOf(id)).setY(y);
             tanks.get(String.valueOf(id)).setDir(dir);
         } else if (type == 1){
-            int length = byteBuffer.getInt(20);
-            tanks.get(String.valueOf(id)).setName(new String(bytes, 24, length));
+            if (tanks.get(String.valueOf(id)) != null){
+                int length = byteBuffer.getInt(20);
+                tanks.get(String.valueOf(id)).setName(new String(bytes, 24, length));
+            }
+
         } else if (type == 5){
             if (tanks.get(String.valueOf(id)) != null){
                 System.out.println("Player " + tanks.get(String.valueOf(id)).getName() + " exit!");
@@ -144,6 +144,11 @@ public class TraditionalService implements SendInterface, Runnable{
             }
         } else if (type == 4){
             tanks.remove(String.valueOf(id));
+        } else if (type == 6){
+            //replay
+            sendAllTanksOnlineToNewClient(ch);
+            int length = byteBuffer.getInt(20);
+            tanks.put(String.valueOf(id), new Tank(id, new String(bytes, 24, length), byteBuffer.getInt(8), byteBuffer.getInt(12), byteBuffer.getInt(16)));
         }
     }
 
